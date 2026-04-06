@@ -1,0 +1,65 @@
+default_install_hook_types: [pre-commit, pre-push]
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-yaml
+    - id: check-added-large-files
+    - id: check-merge-conflict
+    - id: no-commit-to-branch
+      args: [--branch, main]
+
+- repo: https://github.com/astral-sh/uv-pre-commit
+  rev: 0.11.3
+  hooks:
+    - id: uv-lock
+      args: [--locked]
+
+# pre-commit: fast formatting and lint checks only
+- repo: local
+  hooks:
+    - id: cargo-fmt
+      name: cargo fmt
+      entry: cargo fmt --all --check
+      language: system
+      types: [rust]
+      pass_filenames: false
+
+    - id: ruff-check
+      name: ruff check
+      entry: uv run ruff check --fix
+      language: system
+      types: [python]
+
+    - id: ruff-format
+      name: ruff format
+      entry: uv run ruff format --force-exclude
+      language: system
+      types: [python]
+
+# pre-push: compilation, linting, and tests
+    - id: cargo-clippy
+      name: cargo clippy
+      entry: cargo clippy --all -- -D warnings
+      language: system
+      types: [rust]
+      pass_filenames: false
+      stages: [pre-push]
+
+    - id: cargo-test
+      name: cargo test
+      entry: cargo test --all
+      language: system
+      types: [rust]
+      pass_filenames: false
+      stages: [pre-push]
+
+    - id: pytest
+      name: pytest
+      entry: uv run pytest
+      language: system
+      types_or: [python, rust]
+      pass_filenames: false
+      stages: [pre-push]

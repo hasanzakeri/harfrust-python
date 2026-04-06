@@ -1,1 +1,21 @@
+# Local Cargo config (dev overrides for sibling checkouts)
 .cargo/config.toml
+
+# Rust
+target/
+**/*.rs.bk
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.egg-info/
+
+# Environments
+.venv/
+
+# Testing
+.pytest_cache/
+
+**/*.dSYM
