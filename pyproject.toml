@@ -1,0 +1,22 @@
+[build-system]
+requires = ["maturin>=1.8"]
+build-backend = "maturin"
+
+[project]
+name = "pyharfrust"
+version = "0.1.0"
+description = "Python bindings for the HarfRust text shaping engine"
+requires-python = ">=3.9"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "harfrust._harfrust"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
