@@ -72,7 +72,7 @@ impl PyScript {
         }
         Script::from_str(s)
             .map(PyScript)
-            .map_err(pyo3::exceptions::PyValueError::new_err)
+            .map_err(|_| pyo3::exceptions::PyValueError::new_err(format!("invalid script: {s:?}")))
     }
 
     #[getter]
