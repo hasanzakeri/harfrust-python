@@ -35,3 +35,6 @@ reportMissingModuleSource = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "external: tests that require an external harfrust checkout via HARFRUST_SOURCE",
+]
