@@ -1,10 +1,25 @@
 import os
+import re
 
 import pytest
 
 BUNDLED_DATA = os.path.join(os.path.dirname(__file__), "data")
 BUNDLED_FONTS = os.path.join(os.path.dirname(__file__), "fonts")
 HARFRUST_SOURCE = os.environ.get("HARFRUST_SOURCE")
+
+MIN_EXTERNAL_CASES = 5000
+
+_RS_TEST_RE = re.compile(
+    r"shape\(\s*"
+    r'"((?:\\.|[^"\\])*)"\s*,\s*'
+    r'"((?:\\.|[^"\\])*)"\s*,\s*'
+    r'"((?:\\.|[^"\\])*)"\s*,?\s*'
+    r"\)\s*,\s*"
+    r'"((?:\\.|[^"\\])*)"',
+    re.DOTALL,
+)
+_RS_U_ESC = re.compile(r"\\u\{([0-9A-Fa-f]+)\}")
+_RS_LINE_CONT = re.compile(r"\\\n\s*")
 
 
 def parse_tests_file(path):
@@ -32,6 +47,25 @@ def parse_tests_file(path):
     return cases
 
 
+def parse_rs_file(path, font_root):
+    """Extract test cases from a harfrust-generated tests/shaping/*.rs file.
+
+    Font paths inside the file are relative to the harfrust crate root
+    (e.g. "tests/fonts/in-house/X.ttf"); ``font_root`` is that root.
+    """
+    cases = []
+    with open(path) as f:
+        content = f.read()
+    for font_rel, text_lit, options, expected in _RS_TEST_RE.findall(content):
+        text = _RS_LINE_CONT.sub("", text_lit)
+        text = _RS_U_ESC.sub(lambda m: chr(int(m.group(1), 16)), text)
+        font_path = os.path.normpath(os.path.join(font_root, font_rel))
+        if not os.path.exists(font_path):
+            continue
+        cases.append((font_path, text, options, expected))
+    return cases
+
+
 def collect_tests_files():
     """Yield (case, is_external) pairs for every bundled and external test case."""
     cases = []
@@ -41,12 +75,35 @@ def collect_tests_files():
                 for case in parse_tests_file(os.path.join(BUNDLED_DATA, f)):
                     cases.append((case, False))
     if HARFRUST_SOURCE:
-        ext_tests = os.path.join(HARFRUST_SOURCE, "harfrust", "tests", "custom")
-        if os.path.isdir(ext_tests):
-            for f in sorted(os.listdir(ext_tests)):
-                if f.endswith(".tests"):
-                    for case in parse_tests_file(os.path.join(ext_tests, f)):
-                        cases.append((case, True))
+        external_cases = _collect_external_cases(HARFRUST_SOURCE)
+        if len(external_cases) < MIN_EXTERNAL_CASES:
+            raise RuntimeError(
+                f"HARFRUST_SOURCE is set to {HARFRUST_SOURCE!r} but only "
+                f"{len(external_cases)} Tier 2 cases were discovered "
+                f"(expected at least {MIN_EXTERNAL_CASES}). "
+                "Either the checkout is missing tests/shaping/*.rs or the parser "
+                "is out of sync with harfrust's test generator."
+            )
+        cases.extend((c, True) for c in external_cases)
+    return cases
+
+
+def _collect_external_cases(harfrust_source: str):
+    """Collect test cases from harfrust's generated .rs test files.
+
+    Note: We only parse .rs files in tests/shaping/, NOT the .tests files in
+    tests/custom/. The .tests files are source files for harfrust's test
+    generator (gen-shaping-tests.py) and may contain tests that are
+    intentionally excluded from the generated .rs files (e.g., macOS-only
+    tests, tests with known different expected values, etc.).
+    """
+    cases = []
+    harfrust_root = os.path.join(harfrust_source, "harfrust")
+    shaping_dir = os.path.join(harfrust_root, "tests", "shaping")
+    if os.path.isdir(shaping_dir):
+        for f in sorted(os.listdir(shaping_dir)):
+            if f.endswith(".rs") and f != "main.rs":
+                cases.extend(parse_rs_file(os.path.join(shaping_dir, f), harfrust_root))
     return cases
 
 
