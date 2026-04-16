@@ -89,6 +89,14 @@ def collect_tests_files():
 
 
 def _collect_external_cases(harfrust_source: str):
+    """Collect test cases from harfrust's generated .rs test files.
+
+    Note: We only parse .rs files in tests/shaping/, NOT the .tests files in
+    tests/custom/. The .tests files are source files for harfrust's test
+    generator (gen-shaping-tests.py) and may contain tests that are
+    intentionally excluded from the generated .rs files (e.g., macOS-only
+    tests, tests with known different expected values, etc.).
+    """
     cases = []
     harfrust_root = os.path.join(harfrust_source, "harfrust")
     shaping_dir = os.path.join(harfrust_root, "tests", "shaping")
@@ -96,11 +104,6 @@ def _collect_external_cases(harfrust_source: str):
         for f in sorted(os.listdir(shaping_dir)):
             if f.endswith(".rs") and f != "main.rs":
                 cases.extend(parse_rs_file(os.path.join(shaping_dir, f), harfrust_root))
-    custom_dir = os.path.join(harfrust_root, "tests", "custom")
-    if os.path.isdir(custom_dir):
-        for f in sorted(os.listdir(custom_dir)):
-            if f.endswith(".tests"):
-                cases.extend(parse_tests_file(os.path.join(custom_dir, f)))
     return cases
 
 
