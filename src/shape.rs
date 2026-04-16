@@ -5,14 +5,14 @@ use pyo3::prelude::*;
 fn shape(font_path: &str, text: &str, options: &str) -> PyResult<String> {
     hr_shape::shape(font_path, text, options)
         .map(|s| s.trim_end().to_string())
-        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e))
+        .map_err(pyo3::exceptions::PyRuntimeError::new_err)
 }
 
 #[pyfunction]
 fn run_from_args(args: Vec<String>) -> PyResult<String> {
     hr_shape::run_from_args(args)
         .map(|s| s.trim_end().to_string())
-        .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e))
+        .map_err(pyo3::exceptions::PyRuntimeError::new_err)
 }
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
