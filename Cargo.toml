@@ -11,4 +11,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 harfrust = { version = "0.5.2", features = ["std"] }
+hr-shape = { version = "0.5.2" }
 pyo3 = { version = "0.28.3", features = ["extension-module"] }

@@ -5,6 +5,8 @@ from pyharfrust._pyharfrust import (
     Language,
     Script,
     Variation,
+    run_from_args,
+    shape,
 )
 
 __all__ = [
@@ -14,4 +16,6 @@ __all__ = [
     "Language",
     "Script",
     "Variation",
+    "run_from_args",
+    "shape",
 ]
