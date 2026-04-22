@@ -130,6 +130,9 @@ impl PyBuffer {
 
     fn __repr__(&self) -> PyResult<String> {
         let buf = self.as_ref_buf()?;
+        // NOTE: duplicated from PyDirection::__repr__ in types.rs (private there).
+        // If Direction's repr labels ever change, update both sites — or promote
+        // this match to a shared helper.
         let dir = match buf.direction() {
             harfrust::Direction::LeftToRight => "Direction.LTR",
             harfrust::Direction::RightToLeft => "Direction.RTL",

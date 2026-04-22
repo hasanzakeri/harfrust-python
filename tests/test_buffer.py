@@ -121,6 +121,10 @@ class TestProperties:
 
 # ---------------------------------------------------------------------------
 # Context setters
+#
+# harfrust exposes only setters for pre/post context (no getters), so these
+# tests can only confirm the calls don't raise. The real regression signal
+# will come from Phase 5 shaping tests where context changes affect output.
 # ---------------------------------------------------------------------------
 
 
@@ -128,11 +132,15 @@ class TestContext:
     def test_set_pre_context(self):
         buf = Buffer()
         buf.set_pre_context("abc")
-        # no getter in upstream API; just verify the call succeeds
 
     def test_set_post_context(self):
         buf = Buffer()
         buf.set_post_context("xyz")
+
+    def test_set_not_found_variation_selector_glyph(self):
+        buf = Buffer()
+        buf.set_not_found_variation_selector_glyph(0)
+        buf.set_not_found_variation_selector_glyph(42)
 
 
 # ---------------------------------------------------------------------------
