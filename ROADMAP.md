@@ -2,7 +2,7 @@
 
 ## Phase 1 — Project Skeleton
 
-Buildable Python package that imports successfully. Set up `Cargo.toml` (PyO3 cdylib), `pyproject.toml` (maturin backend), a minimal `src/lib.rs` with a version function, and `python/harfrust/__init__.py` that re-exports it. Include an MIT `LICENSE` file and a GitHub Actions CI workflow (`maturin develop` + `pytest`).
+Buildable Python package that imports successfully. Set up `Cargo.toml` (PyO3 cdylib), `pyproject.toml` (maturin backend), a minimal `src/lib.rs` with a version function, and `python/pyharfrust/__init__.py` that re-exports it. Include an MIT `LICENSE` file and a GitHub Actions CI workflow (`maturin develop` + `pytest`).
 
 **Done when:** `maturin develop && pytest` passes with a single `test_import` test, LICENSE exists, and CI is green.
 
@@ -16,7 +16,7 @@ Expose `Direction`, `Script`, `Language`, `Feature`, and `Variation` as Python c
 
 Wrap `hr_shape::shape()` and `hr_shape::run_from_args()` as top-level Python functions. Set up a `.tests` regression suite with bundled test fonts and data, plus optional discovery of an external harfrust checkout via `HARFRUST_SOURCE`.
 
-**Done when:** `harfrust.shape(font_path, text, options)` returns a serialized glyph string and bundled `.tests` cases pass.
+**Done when:** `pyharfrust.shape(font_path, text, options)` returns a serialized glyph string and bundled `.tests` cases pass.
 
 ## Phase 4 — Buffer Class
 
