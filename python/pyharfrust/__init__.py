@@ -1,5 +1,6 @@
 from pyharfrust._pyharfrust import (
     __version__,
+    Buffer,
     Direction,
     Feature,
     Language,
@@ -11,6 +12,7 @@ from pyharfrust._pyharfrust import (
 
 __all__ = [
     "__version__",
+    "Buffer",
     "Direction",
     "Feature",
     "Language",
