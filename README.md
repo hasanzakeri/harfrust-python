@@ -23,7 +23,7 @@ HarfBuzz is the industry-standard text shaping engine used by Firefox, Chrome, A
 
 ## Status
 
-This project is in early development. See the [development plan](https://github.com/nickkuk/harfrust-python/blob/main/ROADMAP.md) for the phased roadmap.
+This project is in early development. See the [development plan](https://github.com/hasanzakeri/harfrust-python/blob/main/ROADMAP.md) for the phased roadmap.
 
 ## License
 
