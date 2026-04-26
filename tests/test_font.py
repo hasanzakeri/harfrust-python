@@ -79,12 +79,14 @@ class TestShape:
     def test_glyph_info_fields(self):
         font = Font(PT_SANS)
         gbuf = _shape_str(font, "AB")
-        info = gbuf.glyph_infos[0]
-        assert isinstance(info.glyph_id, int) and info.glyph_id > 0
-        assert info.cluster == 0
-        assert isinstance(info.unsafe_to_break, bool)
-        assert isinstance(info.unsafe_to_concat, bool)
-        assert isinstance(info.safe_to_insert_tatweel, bool)
+        infos = gbuf.glyph_infos
+        assert isinstance(infos[0].glyph_id, int) and infos[0].glyph_id > 0
+        assert infos[0].cluster == 0
+        assert infos[1].cluster == 1
+        for info in infos:
+            assert isinstance(info.unsafe_to_break, bool)
+            assert isinstance(info.unsafe_to_concat, bool)
+            assert isinstance(info.safe_to_insert_tatweel, bool)
 
     def test_glyph_position_fields(self):
         font = Font(PT_SANS)
@@ -145,6 +147,14 @@ class TestSerializeParity:
         obj_result = gbuf.serialize(font).strip()
         str_result = shape(PT_SANS, "AB", "--features=+kern").strip()
         assert obj_result == str_result
+
+    def test_from_bytes_matches_from_path(self):
+        font_path = Font(PT_SANS)
+        with open(PT_SANS, "rb") as f:
+            font_bytes = Font.from_bytes(f.read())
+        a = _shape_str(font_path, "Hello").serialize(font_path).strip()
+        b = _shape_str(font_bytes, "Hello").serialize(font_bytes).strip()
+        assert a == b
 
 
 # ---------------------------------------------------------------------------
@@ -241,7 +251,7 @@ class TestFeatures:
         buf = Buffer()
         buf.add_str("AB")
         with pytest.raises(ValueError, match="invalid feature"):
-            font.shape(buf, features="bogus[junk")
+            font.shape(buf, features="=")
 
     def test_features_wrong_type(self):
         font = Font(PT_SANS)
