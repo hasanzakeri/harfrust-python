@@ -14,7 +14,7 @@ impl PyBuffer {
         PyValueError::new_err("Buffer has been consumed by shape()")
     }
 
-    fn as_ref_buf(&self) -> PyResult<&UnicodeBuffer> {
+    pub(crate) fn as_ref_buf(&self) -> PyResult<&UnicodeBuffer> {
         self.inner.as_ref().ok_or_else(Self::consumed_err)
     }
 
