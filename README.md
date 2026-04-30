@@ -54,6 +54,13 @@ The third argument accepts the same flags as the `hb-shape` CLI:
 shape("font.ttf", "AB", "--features=+kern,-liga --direction=ltr")
 ```
 
+For full CLI parity, `run_from_args(argv)` accepts the same argument list as `hb-shape` — `argv[0]` is the program name, the rest are flags:
+
+```python
+from pyharfrust import run_from_args
+run_from_args(["hb-shape", "--font-file=font.ttf", "--features=+kern", "Hello"])
+```
+
 ### Object API
 
 For repeated shaping, font configuration, or access to per-glyph metadata, use the object API:
@@ -129,7 +136,7 @@ buf.guess_segment_properties()
 glyphs = font.shape(buf)
 ```
 
-Reusing a consumed `Buffer` (or `GlyphBuffer`) raises `ValueError`.
+`GlyphBuffer.clear()` consumes the glyph buffer: any further access to the original `glyphs` instance — including a second `clear()` — raises `ValueError`. The same applies to a `Buffer` once it has been passed to `shape()`.
 
 ## Errors
 
