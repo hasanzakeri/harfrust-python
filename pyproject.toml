@@ -1,0 +1,41 @@
+[build-system]
+requires = ["maturin>=1.8"]
+build-backend = "maturin"
+
+[project]
+name = "pyharfrust"
+version = "0.1.0"
+description = "Python bindings for the HarfRust text shaping engine"
+requires-python = ">=3.11"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "maturin>=1.12.6",
+    "pre-commit>=4.3.0",
+    "pyright>=1.1.408",
+    "pytest>=9.0.2",
+    "ruff>=0.15.9",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "pyharfrust._pyharfrust"
+
+[tool.pyright]
+pythonPlatform = "All"
+typeCheckingMode = "basic"
+reportMissingModuleSource = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not external'"
+markers = [
+    "external: tests that require an external harfrust checkout via HARFRUST_SOURCE",
+]

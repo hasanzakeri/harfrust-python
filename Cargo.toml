@@ -1,0 +1,15 @@
+[package]
+name = "pyharfrust"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+
+[lib]
+name = "_pyharfrust"
+crate-type = ["cdylib"]
+
+[dependencies]
+harfrust = { version = "0.5.2", features = ["std"] }
+hr-shape = { version = "0.5.2" }
+pyo3 = { version = "0.28.3", features = ["extension-module"] }

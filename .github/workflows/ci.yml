@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main, release]
+  pull_request:
+    branches: [main, release]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-source-gate:
+    # PRs targeting `release` are only allowed from `main`. GitHub branch
+    # protection has no "restrict source branch" setting, so we enforce it
+    # here as a required check. Make this a required status check on the
+    # `release` branch so the PR can't merge without it.
+    if: github.event_name == 'pull_request' && github.base_ref == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs to release must come from main
+        run: |
+          if [ "$GITHUB_HEAD_REF" != "main" ]; then
+            echo "::error::PRs to release must come from main, got '$GITHUB_HEAD_REF'."
+            exit 1
+          fi
+
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Rust formatting
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: cargo clippy --all -- -D warnings
+
+      - name: Rust tests
+        run: cargo test --all
+
+      - name: Install Python deps
+        run: uv sync --locked
+
+      - name: Build extension
+        run: uv run maturin develop
+
+      - name: Ruff check
+        run: uv run ruff check
+
+      - name: Ruff format
+        run: uv run ruff format --check
+
+      - name: Python tests
+        run: uv run pytest
+
+  tier2:
+    # Tier 2: external regression against the full harfrust shaping corpus.
+    # Only runs on the release branch, where we care about version-drift signal.
+    if: github.ref == 'refs/heads/release' || github.base_ref == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check out harfrust at 0.5.2
+        uses: actions/checkout@v6
+        with:
+          repository: harfbuzz/harfrust
+          # Pinned to the 0.5.2 commit so the test corpus matches the hr-shape
+          # version declared in Cargo.toml. Bump this alongside the dep.
+          ref: efdae3142ab76a2f1524d72cff9e3dfdc5afd7ca
+          path: harfrust-external
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python deps
+        run: uv sync --locked
+
+      - name: Build extension
+        run: uv run maturin develop
+
+      - name: Tier 2 shaping regression
+        env:
+          HARFRUST_SOURCE: ${{ github.workspace }}/harfrust-external
+        run: uv run pytest -m external
