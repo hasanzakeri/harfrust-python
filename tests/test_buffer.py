@@ -106,17 +106,17 @@ class TestProperties:
     def test_direction_setter_rejects_nondirection(self):
         buf = Buffer()
         with pytest.raises(TypeError):
-            buf.direction = "ltr"
+            buf.direction = "ltr"  # pyright: ignore[reportAttributeAccessIssue]
 
     def test_script_setter_rejects_nonscript(self):
         buf = Buffer()
         with pytest.raises(TypeError):
-            buf.script = "Latn"
+            buf.script = "Latn"  # pyright: ignore[reportAttributeAccessIssue]
 
     def test_language_setter_rejects_nonlanguage(self):
         buf = Buffer()
         with pytest.raises(TypeError):
-            buf.language = "en"
+            buf.language = "en"  # pyright: ignore[reportAttributeAccessIssue]
 
 
 # ---------------------------------------------------------------------------

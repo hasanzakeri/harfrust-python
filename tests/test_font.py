@@ -258,7 +258,7 @@ class TestFeatures:
         buf = Buffer()
         buf.add_str("AB")
         with pytest.raises(TypeError):
-            font.shape(buf, features=42)
+            font.shape(buf, features=42)  # pyright: ignore[reportArgumentType]
 
 
 # ---------------------------------------------------------------------------
@@ -302,7 +302,7 @@ class TestVariations:
     def test_set_variations_wrong_type(self):
         font = Font(OPEN_SANS)
         with pytest.raises(TypeError):
-            font.set_variations(42)
+            font.set_variations(42)  # pyright: ignore[reportArgumentType]
 
 
 # ---------------------------------------------------------------------------
