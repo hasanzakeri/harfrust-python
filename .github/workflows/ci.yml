@@ -15,6 +15,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  release-source-gate:
+    # PRs targeting `release` are only allowed from `main`. GitHub branch
+    # protection has no "restrict source branch" setting, so we enforce it
+    # here as a required check. Make this a required status check on the
+    # `release` branch so the PR can't merge without it.
+    if: github.event_name == 'pull_request' && github.base_ref == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs to release must come from main
+        run: |
+          if [ "$GITHUB_HEAD_REF" != "main" ]; then
+            echo "::error::PRs to release must come from main, got '$GITHUB_HEAD_REF'."
+            exit 1
+          fi
+
   ci:
     runs-on: ubuntu-latest
     steps:
